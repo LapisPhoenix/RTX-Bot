@@ -6,6 +6,7 @@ from discord.ext import commands, tasks
 class Statuses(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
+        self.statuses = self.load_status()
         self.change_status.start()
 
     @staticmethod
@@ -13,13 +14,11 @@ class Statuses(commands.Cog):
         with open("statuses.txt") as f:
             statuses = f.read().splitlines()
 
-        while True:
-            for status in itertools.cycle(statuses):
-                yield status
+        return itertools.cycle(statuses)
 
     @tasks.loop(seconds=20)
     async def change_status(self):
-        await self.bot.change_presence(activity=discord.Game(next(self.load_status())))
+        await self.bot.change_presence(activity=discord.Game(next(self.statuses)))
 
 
 async def setup(bot):

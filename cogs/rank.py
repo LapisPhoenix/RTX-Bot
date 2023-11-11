@@ -34,7 +34,10 @@ class Rank(commands.Cog):
                 rows = await curs.fetchmany(10)
                 for i, row in enumerate(rows):
                     member = ctx.guild.get_member(row[0])
-                    embed.add_field(name=f"{i + 1}. {member.name}", value=f"Level: {row[1]} | XP: {row[2]}")
+                    if member.bot:
+                        embed.add_field(name=f"{i + 1}. {member.name} (BOT)", value=f"Level: {row[1]} | XP: {row[2]}", inline=False)
+                        continue
+                    embed.add_field(name=f"{i + 1}. {member.name}", value=f"Level: {row[1]} | XP: {row[2]}", inline=False)
         await ctx.send(embed=embed)
 
 

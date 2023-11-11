@@ -10,8 +10,9 @@ class Help(commands.Cog):
     async def help(self, ctx: commands.Context):
         embed = discord.Embed(title="Help", color=discord.Color.green())
         embed.add_field(name="Moderation", value="`ban`, `unban`, `kick`, `mute`, `unmute`, `warn`, `warnings`,"
-                                                 " `clearwarns`")
-        embed.add_field(name="Utility", value="`ping`, `purge`, `rank`, `leaderboard`")
+                                                 " `clearwarns`, `lock`, `unlock`")
+        embed.add_field(name="Utility", value="`ping`, `purge`, `rank`, `leaderboard`, `help`, `giveaway`")
+        embed.add_field(name="Dev", value="`load`, `unload`, `reload`, `reload_all`, `set_status`, `dm`")
 
         await ctx.send(embed=embed)
 
@@ -86,6 +87,61 @@ class Help(commands.Cog):
     async def leaderboard(self, ctx: commands.Context):
         embed = discord.Embed(title="Leaderboard", description="Shows the server's leaderboard", color=discord.Color.green())
         embed.add_field(name="Usage", value="`leaderboard`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def lock(self, ctx: commands.Context):
+        embed = discord.Embed(title="Lock", description="Locks a channel", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`lock`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def unlock(self, ctx: commands.Context):
+        embed = discord.Embed(title="Unlock", description="Unlocks a channel", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`unlock`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def load(self, ctx: commands.Context):
+        embed = discord.Embed(title="Load", description="Loads a cog", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`load <cog>`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def unload(self, ctx: commands.Context):
+        embed = discord.Embed(title="Unload", description="Unloads a cog", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`unload <cog>`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def reload(self, ctx: commands.Context):
+        embed = discord.Embed(title="Reload", description="Reloads a cog", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`reload <cog>`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def reload_all(self, ctx: commands.Context):
+        embed = discord.Embed(title="Reload All", description="Reloads all cogs", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`reload_all`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def set_status(self, ctx: commands.Context):
+        embed = discord.Embed(title="Set Status", description="Sets the bot's status", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`set_status <status>`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def dm(self, ctx: commands.Context):
+        embed = discord.Embed(title="DM", description="DMs a member", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`dm <member> <message>`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def giveaway(self, ctx: commands.Context):
+        embed = discord.Embed(title="Giveaway", description="Starts a giveaway", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`giveaway <time> <winners> <prize>`")
+        embed.add_field(name="Time Format", value="`1d1h1m1s`")
         await ctx.send(embed=embed)
 
 

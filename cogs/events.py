@@ -1,6 +1,7 @@
 import difflib
 import time
 import random
+import asyncio
 import aiosqlite
 import discord
 from discord.ext import commands
@@ -10,8 +11,16 @@ class Events(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
         self.cooldowns = {}
+        self.anti_spam = commands.CooldownMapping.from_cooldown(10, 20, commands.BucketType.member)
+        self.too_many_violations = commands.CooldownMapping.from_cooldown(4, 60, commands.BucketType.member)
+
         with open("banned words.txt", "r") as file:
             self.banned_words = file.read().splitlines()
+
+    @staticmethod
+    async def bump_reminder_task(message):
+        await asyncio.sleep(7200)
+        await message.channel.send(f"{message.author.mention} Time to bump the server again!")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
@@ -83,16 +92,42 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author.bot:
-            return
+        # Bump reminder
+        bump_channel = self.bot.get_channel(1172398920836595732)
 
         if message.guild is None:
             return
 
-        if message.content.lower() in self.banned_words:
+        if message.channel == bump_channel:
+            if message.author.id == 302050872383242240 and message.embeds:
+                if "Bump done!" in message.embeds[0].description:
+                    await message.channel.send(f"Thanks for bumping! I'll remind you to bump again in 2 hours.")
+                    self.bot.loop.create_task(self.bump_reminder_task(message))
+                    return
+
+        if message.author.bot:
+            return
+
+        if any(bad_word in message.content.lower() for bad_word in self.banned_words):
+            if "skbidi toilet" in message.content.lower() and message.author.id == 725491843923574845:
+                return
             await message.delete()
             await message.channel.send(f"{message.author.mention} You can't say that here!", delete_after=5)
             return
+
+        admin_role = message.guild.get_role(1156429381166702652)
+        if isinstance(message.channel, discord.TextChannel) \
+                and admin_role not in message.author.roles and \
+                not isinstance(message.channel, discord.DMChannel) and \
+                not message.author.bot:
+            bucket = self.anti_spam.get_bucket(message)
+            retry_after = bucket.update_rate_limit()
+            if retry_after:
+                await message.delete()
+                epoch_time = round(time.time() + retry_after)
+                await message.channel.send(f"{message.author.mention} You're sending messages too fast! "
+                                           f"Try again in <t:{epoch_time}:R>.", delete_after=retry_after)
+                return
 
         # Check if user is in cooldown
         if message.author.id in self.cooldowns:
@@ -108,6 +143,7 @@ class Events(commands.Cog):
                     await db.execute("INSERT INTO users VALUES (?, ?, ?, ?)",
                                      (message.author.id, 0, 0, 0))
                     await db.commit()
+                    # 0: id, 1: warnings, 2: xp, 3: level
                     user = (message.author.id, 0, 0, 0)  # Default values for a new user
 
                 xp = user[2]
@@ -116,6 +152,20 @@ class Events(commands.Cog):
                 xp_gained = random.randint(15, 25)  # Random number between 15 and 25
                 xp += xp_gained
 
+                level_5_role = message.guild.get_role(1172439547267780608)
+                level_10_role = message.guild.get_role(1172439680759894066)
+                level_15_role = message.guild.get_role(1172439729963290674)
+                level_20_role = message.guild.get_role(1172439762829848626)
+                level_30_role = message.guild.get_role(1172439797739048960)
+                level_40_role = message.guild.get_role(1172439884875694080)
+                level_50_role = message.guild.get_role(1172439934527877130)
+                level_60_role = message.guild.get_role(1172439961782452284)
+                level_69_role = message.guild.get_role(1172440031542116402)
+                level_70_role = message.guild.get_role(1172440140879249478)
+                level_80_role = message.guild.get_role(1172440226187186247)
+                level_90_role = message.guild.get_role(1172440302146048011)
+                level_100_role = message.guild.get_role(1172440361046659112)
+
                 if xp >= xp_level_threshold:
                     level += 1
                     xp -= xp_level_threshold
@@ -123,6 +173,33 @@ class Events(commands.Cog):
                                                                          f"has leveled up to level {level}",
                                           color=discord.Color.green())
                     await message.channel.send(embed=embed)
+
+                    if level == 5:
+                        await message.author.add_roles(level_5_role)
+                    elif level == 10:
+                        await message.author.add_roles(level_10_role)
+                    elif level == 15:
+                        await message.author.add_roles(level_15_role)
+                    elif level == 20:
+                        await message.author.add_roles(level_20_role)
+                    elif level == 30:
+                        await message.author.add_roles(level_30_role)
+                    elif level == 40:
+                        await message.author.add_roles(level_40_role)
+                    elif level == 50:
+                        await message.author.add_roles(level_50_role)
+                    elif level == 60:
+                        await message.author.add_roles(level_60_role)
+                    elif level == 69:
+                        await message.author.add_roles(level_69_role)
+                    elif level == 70:
+                        await message.author.add_roles(level_70_role)
+                    elif level == 80:
+                        await message.author.add_roles(level_80_role)
+                    elif level == 90:
+                        await message.author.add_roles(level_90_role)
+                    elif level == 100:
+                        await message.author.add_roles(level_100_role)
 
                 await db.execute("UPDATE users SET xp=?, level=? WHERE id=?", (xp, level, message.author.id))
                 await db.commit()
@@ -143,7 +220,10 @@ class Events(commands.Cog):
         yellow = ('🟡', payload.member.guild.get_role(1172343700089745428))
         orange = ('🟠', payload.member.guild.get_role(1172343724269916250))
         giveaway = ('🎉', payload.member.guild.get_role(1172384557799047208))
-        roles = [red, blue, green, purple, yellow, orange, giveaway]
+        video = ('📷', payload.member.guild.get_role(1172751862093598850))
+        bot_update = ('🤖', payload.member.guild.get_role(1172752855724195981))
+        annoucements = ('🔊', payload.member.guild.get_role(1172752879153586206))
+        roles = [red, blue, green, purple, yellow, orange, giveaway, video, bot_update, annoucements]
 
         current_roles = payload.member.roles
 
@@ -173,7 +253,10 @@ class Events(commands.Cog):
         yellow = ('🟡', guild.get_role(1172343700089745428))
         orange = ('🟠', guild.get_role(1172343724269916250))
         giveaway = ('🎉', guild.get_role(1172384557799047208))
-        roles = [red, blue, green, purple, yellow, orange, giveaway]
+        video = ('📷', payload.member.guild.get_role(1172751862093598850))
+        bot_update = ('🤖', payload.member.guild.get_role(1172752855724195981))
+        annoucements = ('🔊', payload.member.guild.get_role(1172752879153586206))
+        roles = [red, blue, green, purple, yellow, orange, giveaway, video, bot_update, annoucements]
 
         current_roles = member.roles
 
@@ -183,7 +266,7 @@ class Events(commands.Cog):
                 await member.send(f"Removed role: {role_group[1].name}")
                 return
             else:
-                await member.send("You don't have a role from this group")
+                await member.send("You don't have this role!")
                 return
 
 
