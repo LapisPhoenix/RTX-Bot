@@ -135,22 +135,22 @@ class Events(commands.Cog):
 
     async def handle_censorship(self, message):
         if any(bad_word in message.content.lower() for bad_word in self.banned_words):
-            if "skbidi toilet" in message.content.lower() and message.author.id == 725491843923574845:
-                return
             await message.delete()
             await message.channel.send(f"{message.author.mention} You can't say that here!", delete_after=5)
             return
 
     async def translate(self, message):
         original_language = detect(message.content)
+        if message.content.startswith(self.bot.command_prefix) or message.content.startswith("i."):
+            return
         if original_language == "en":
             return
 
-        translation = self.translator.translate(message.content, dest="en")
+        translation = self.translator.translate(message.content.replace(self.bot.command_prefix, ''), dest="en")
 
-        embed = discord.Embed(title="Translation", description=f"Original: {message.content}\n"
-                                                                f"Translation: {translation.text}",
-                              color=discord.Color.blue())
+        embed = discord.Embed(title="Translation", color=discord.Color.blue())
+        embed.add_field(name="Original", value=message.content, inline=False)
+        embed.add_field(name="Translation", value=translation.text, inline=False)
         embed.set_footer(text=f"Translated from {original_language.upper()} to ENGLISH")
         await message.channel.send(embed=embed)
 
