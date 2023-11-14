@@ -24,6 +24,9 @@ class Rank(commands.Cog):
                 embed = discord.Embed(title=f"{member.name}'s rank", color=discord.Color.green())
                 embed.add_field(name="Level", value=level)
                 embed.add_field(name="XP", value=xp)
+                xp_needed = round(5 * (level ** 2) + 50 * level + 100)
+                percentage = round(xp / xp_needed * 100, 2)
+                embed.add_field(name="Progress", value=f"{xp}/{xp_needed} ({percentage}%)")
                 await ctx.send(embed=embed)
 
     @commands.command()

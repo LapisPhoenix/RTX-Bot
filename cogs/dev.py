@@ -9,8 +9,12 @@ class Dev(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def reload_all(self, ctx: commands.Context):
-        for extension in self.bot.extensions:
+        # Create a copy of the keys to avoid the RuntimeError
+        extensions = list(self.bot.extensions.keys())
+
+        for extension in extensions:
             await self.bot.reload_extension(extension)
+
         await ctx.send("Reloaded all cogs")
 
     @commands.command()
@@ -45,6 +49,15 @@ class Dev(commands.Cog):
             await ctx.send(f"Sent message to {member.mention}")
         except discord.Forbidden:
             await ctx.send(f"Couldn't send message to {member.mention}")
+
+    @commands.command()
+    @commands.is_owner()
+    async def list_cogs(self, ctx):
+        msg = "List of Cogs:\n"
+        for extension in self.bot.extensions:
+            msg += f"- {extension.replace('cogs.', '')}\n"
+
+        await ctx.send(msg)
 
 
 async def setup(bot):

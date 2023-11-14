@@ -11,8 +11,9 @@ class Help(commands.Cog):
         embed = discord.Embed(title="Help", color=discord.Color.green())
         embed.add_field(name="Moderation", value="`ban`, `unban`, `kick`, `mute`, `unmute`, `warn`, `warnings`,"
                                                  " `clearwarns`, `lock`, `unlock`")
-        embed.add_field(name="Utility", value="`ping`, `purge`, `rank`, `leaderboard`, `help`, `giveaway`")
-        embed.add_field(name="Dev", value="`load`, `unload`, `reload`, `reload_all`, `set_status`, `dm`")
+        embed.add_field(name="Utility", value="`ping`, `purge`, `rank`, `leaderboard`, `help`, `giveaway`, `poll`")
+        embed.add_field(name="Dev", value="`load`, `unload`, `reload`, `reload_all`, `set_status`, `dm`, `list_cogs`")
+        embed.add_field(name="Fun", value="`coinflip`, `dice`, `random`, `choose`, `rps`")
 
         await ctx.send(embed=embed)
 
@@ -142,6 +143,49 @@ class Help(commands.Cog):
         embed = discord.Embed(title="Giveaway", description="Starts a giveaway", color=discord.Color.green())
         embed.add_field(name="Usage", value="`giveaway <time> <winners> <prize>`")
         embed.add_field(name="Time Format", value="`1d1h1m1s`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def list_cogs(self, ctx: commands.Context):
+        embed = discord.Embed(title="List Cogs", description="Lists all cogs", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`list_cogs`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def poll(self, ctx: commands.Context):
+        embed = discord.Embed(title="Poll", description="Creates a poll", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`poll <question>`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def coinflip(self, ctx: commands.Context):
+        embed = discord.Embed(title="Coinflip", description="Flips a coin", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`coinflip`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def dice(self, ctx: commands.Context):
+        embed = discord.Embed(title="Dice", description="Rolls a die", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`dice`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def random(self, ctx: commands.Context):
+        embed = discord.Embed(title="Random", description="Generates a random number", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`random <start: Default=0> <end: Default=100>`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def choose(self, ctx: commands.Context):
+        embed = discord.Embed(title="Choose", description="Chooses between multiple choices", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`choose <choice1> <choice2> ...`")
+        await ctx.send(embed=embed)
+
+    @help.command()
+    async def rps(self, ctx: commands.Context):
+        embed = discord.Embed(title="RPS", description="Plays rock paper scissors", color=discord.Color.green())
+        embed.add_field(name="Usage", value="`rps <choice>`")
+        embed.add_field(name="Choices", value="`rock`, `paper`, `scissors`")
         await ctx.send(embed=embed)
 
 
